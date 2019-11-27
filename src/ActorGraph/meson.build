@@ -1,12 +1,5 @@
-subdir('ActorGraph')
 
-pathfinder_exe = executable('pathfinder.cpp.executable',
-			sources: ['pathfinder.cpp'],
-			dependencies : [actorGraph_dep],
-			install : true)
+actorGraph = library('actorGraph', sources: ['ActorGraph.hpp', 'ActorGraph.cpp', 'ActorNode.hpp', 'Edge.hpp', 'MovieNode.hpp'] )
 
-linkpredictor_exe = executable('linkpredictor.cpp.executable',
-			sources: ['linkpredictor.cpp'],
-			dependencies : [actorGraph_dep],
-			install : true)
-
+inc = include_directories('.')
+actorGraph_dep = declare_dependency(include_directories: inc, link_with: actorGraph)
