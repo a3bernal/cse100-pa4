@@ -37,9 +37,11 @@ struct EdgePtrComp {
 
     bool operator()(Edge* lhs, Edge* rhs) const {
         if (lhs->priority != rhs->priority) {
+		// descending order
             return lhs->priority < rhs->priority;
         }
-        return lhs->actor < rhs->actor;
+	// ascending order
+        return lhs->actor > rhs->actor;
     }
 };
 #endif

@@ -12,6 +12,7 @@
 #include <vector>
 #include "ActorGraph.hpp"
 #include "Edge.hpp"
+#include "MovieNode.hpp"
 
 using namespace std;
 class ActorNode {
@@ -42,13 +43,14 @@ class ActorNode {
     }
 
 
-bool operator <(ActorNode* actor1)const {
+/*bool operator <(ActorNode* actor1)const {
 	cout << "here" << endl;
         if( this->name > actor1->name){
                 return true;
         }
         return false;
-}
+}*/
+
 };
 struct ActorPtrComp {
     bool operator()(ActorNode* lhs, ActorNode* rhs) const {

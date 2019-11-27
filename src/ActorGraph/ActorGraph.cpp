@@ -436,9 +436,9 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
         }
     }
 
-    priority_queue<Edge*, vector<Edge*>, EdgePtrComp> pq;
+    priority_queue<ActorNode*, vector<ActorNode*>, ActorPtrComp> pq;
     // to reset the variables
-    vector<ActorNode*> resetVariables;
+    vector<Edge*> resetVariables;
     startActor->visited = true;
     // First Level
     for (int i = 0; i < startActorNeighbors.size(); i++) {
@@ -455,11 +455,11 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
                     priority = priority + moviesTogether;
                 }
             }
-            currEdge->priority = priority;
+            currEdge->actor->priority = priority;
             currEdge->actor->visited = true;
-            pq.push(currEdge);
+            pq.push(currEdge->actor);
             // reset these actor visited variables
-            resetVariables.push_back(currEdge->actor);
+            resetVariables.push_back(currEdge);
         }
     }
 
@@ -469,23 +469,20 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
     int y = 0;
     while (pq.empty() == false) {
         // top edge of the priority queue
-        Edge* topEdge = pq.top();
-	// reset the edge values since its not needed for this part
-	//topEdge->priority = 0;
+        ActorNode* topActor = pq.top();
 	// print the top four
 	if(y < 4){
-	   outCollab << topEdge->actor->name << "	";
+	   outCollab << topActor->name << "	";
 	   y = y + 1;
 	}
 
-        for (int i = 0; i < topEdge->actor->connections.size(); i++) {
-            Edge* curEdge = topEdge->actor->connections[i];
-	    if(curEdge->actor->visited == false){
-            ActorNode* currActor = curEdge->actor;
+        for (int i = 0; i < topActor->connections.size(); i++) {
+            ActorNode* currActor = topActor->connections[i]->actor;
+	    if(currActor->visited == false){
             // calculate the priority
             currActor->priority =
                 currActor->priority +
-                edgeMap.at(startActor->name + topEdge->actor->name);
+                edgeMap.at(startActor->name + topActor->name);
             // to avoid adding the same actor multiple times into the sort vector
             if (currActor->added == false) {
                 currActor->added = true;
@@ -511,14 +508,19 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
 		break;
 	    }
     }
+    
     // reset the actor variables 
     for(int i = 0; i < toSort.size(); i++){
 	ActorNode* resetActor = toSort[i];
 	resetActor->priority =0;
 	resetActor->added = false;
+	resetActor->visited = false;
     }
     for(int i = 0; i < resetVariables.size();i++){
-	resetVariables[i]->visited = false;
+	resetVariables[i]->actor->visited = false;
+	resetVariables[i]->actor->added = false;
+	resetVariables[i]->actor->priority = 0;
+
     }
     startActor->visited = false;
     startActor->priority = 0;
