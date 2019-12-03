@@ -8,6 +8,7 @@
 #ifndef ACTORNODE_HPP
 #define ACTORNODE_HPP
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 #include "ActorGraph.hpp"
@@ -31,27 +32,24 @@ class ActorNode {
     int priority;
     // used for Link Prediction Second Level
     bool added;
+    // used for movietraveler
+    ActorNode* parent;
+    // used for movietraveler to know which two verties is parent
+    int size;
 
     /* Constructor to initialize a ActorNode */
     ActorNode(string name) : name(name) {
         connections = vector<Edge*>();
         visited = false;
         previous = nullptr;
-        distance = -1;
+        distance = numeric_limits<int>::max();
         priority = 0;
         added = false;
+        parent = nullptr;
+        size = 1;
     }
-
-
-/*bool operator <(ActorNode* actor1)const {
-	cout << "here" << endl;
-        if( this->name > actor1->name){
-                return true;
-        }
-        return false;
-}*/
-
 };
+/* This struct is used as the comparison basis for a priority queue*/
 struct ActorPtrComp {
     bool operator()(ActorNode* lhs, ActorNode* rhs) const {
         if (lhs->priority != rhs->priority) {

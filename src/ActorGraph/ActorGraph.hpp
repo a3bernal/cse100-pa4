@@ -28,10 +28,21 @@ using namespace std;
  */
 class ActorGraph {
   public:
+    class CompareDist {
+      public:
+        bool operator()(pair<ActorNode*, Edge*> n1,
+                        pair<ActorNode*, Edge*> n2) {
+            return n1.second->weight > n2.second->weight;
+        }
+    };
     // hashmap to store the actor names as keys and actorNode as values
     unordered_map<string, ActorNode*> actorsMap;
     // hashmap to store the movies
     unordered_map<string, MovieNode*> moviesMap;
+    // priority queue used for MST
+    priority_queue<pair<ActorNode*, Edge*>, vector<pair<ActorNode*, Edge*>>,
+                   CompareDist>
+        pq;
 
   public:
     /**
@@ -58,7 +69,7 @@ class ActorGraph {
     bool pairsToVector(const char* in_filename,
                        vector<pair<string, string>>& actorPairs);
 
-    bool actorsToVector(const char* in_filename, vector<string> &singleActors);
+    bool actorsToVector(const char* in_filename, vector<string>& singleActors);
 
     int BFSActors(ActorNode* startingActor, string endingActor, ofstream& out);
 
@@ -67,7 +78,16 @@ class ActorGraph {
     void printPath(ActorNode* start, Edge* end, ofstream& out);
 
     void linkCollabs(ActorNode* start, ofstream& outCollab,
-                              ofstream& outUncollab);
+                     ofstream& outUncollab);
+
+    pair<Edge*, vector<Edge*>> shortestPathWeighted(ActorNode* startActor,
+                                                    string endActor);
+
+    ActorNode* findSentinel(ActorNode* currActor);
+
+    void pathCompression(vector<ActorNode*> path, ActorNode* sentinel);
+
+    bool unionActors(ActorNode* actor1, ActorNode* actor2);
 };
 
 #endif  // ACTORGRAPH_HPP

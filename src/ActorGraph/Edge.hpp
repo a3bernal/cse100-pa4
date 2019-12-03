@@ -9,6 +9,7 @@
 #ifndef EDGE_HPP
 #define EDGE_HPP
 #include <iostream>
+#include <limits>
 #include <string>
 #include "ActorGraph.hpp"
 #include "ActorNode.hpp"
@@ -25,23 +26,22 @@ class Edge {
     MovieNode* movie;
     // previous edge used for BFS
     Edge* previous;
-    //
+    // used for pq
+    int distance;
+    int weight;
+    // used for pq
     int priority;
     /* Constructor of Edge object */
     Edge(ActorNode* actor, MovieNode* movie) : actor(actor), movie(movie) {
         priority = 0;
+        distance = numeric_limits<int>::max();
+        weight = 0;
     }
 };
 struct EdgePtrComp {
     /* Used for the priority queue to prioritize*/
-
     bool operator()(Edge* lhs, Edge* rhs) const {
-        if (lhs->priority != rhs->priority) {
-		// descending order
-            return lhs->priority < rhs->priority;
-        }
-	// ascending order
-        return lhs->actor > rhs->actor;
+        return lhs->distance > rhs->distance;
     }
 };
 #endif

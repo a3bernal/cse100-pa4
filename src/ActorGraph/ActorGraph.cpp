@@ -7,10 +7,10 @@
  * to read the input file format defined in imdb_2019.tsv. Feel free to modify
  * any/all aspects as you wish.
  */
-
 #include "ActorGraph.hpp"
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <queue>
 #include <sstream>
 #include <stack>
@@ -172,12 +172,15 @@ bool ActorGraph::buildEdges(const char* in_filename, bool use_weighted_edges) {
             // dont add its own actor as an edge
             if (currActor->name == currMovie->cast[i]->name) {
             } else {
+                int currYear = 2019;
                 // create a edge object to append it to the actors connections
                 Edge* connection = new Edge(currMovie->cast[i], currMovie);
+                int edgeWeight = 1 + (currYear - currMovie->year);
+                connection->weight = edgeWeight;
                 currActor->connections.push_back(connection);
+                pq.push(make_pair(currActor, connection));
             }
         }
-
         // end of while loop
     }
     if (!infile.eof()) {
@@ -300,9 +303,60 @@ int ActorGraph::BFSActors(ActorNode* startingActor, string endingActor,
     }
     ActorGraph::resetActorVariables();
     // dont print anything
-    return -2;
+    return 0;
+}
 
-    // end method
+/* This method find the shortest weighted path from a starting actor to
+ * another actor based on the input and returns the total weighted path
+ */
+
+pair<Edge*, vector<Edge*>> ActorGraph::shortestPathWeighted(
+    ActorNode* startActor, string endActor) {
+    const int CURRENT_YEAR = 2019;
+    // the pq used for weighted edges
+    priority_queue<Edge*, vector<Edge*>, EdgePtrComp> pq;
+    vector<Edge*> resetVariables;
+    // set these to true since its the first enqued vertex
+    startActor->distance = 0;
+    // Dummy edge for start
+    MovieNode* dummyNode = new MovieNode("dummyNode", 2019);
+    Edge* dummyEdge = new Edge(startActor, dummyNode);
+    resetVariables.push_back(dummyEdge);
+    dummyEdge->distance = 0;
+    pq.push(dummyEdge);
+    // For each edge in starting at the startActor
+    while (pq.empty() == false) {
+        Edge* topEdge = pq.top();
+        // actor vertex at the top of pq
+        ActorNode* topActor = topEdge->actor;
+        if (topActor->name == endActor) {
+            return make_pair(topEdge, resetVariables);
+        }
+        pq.pop();
+        if (topActor->visited == false) {
+            resetVariables.push_back(topEdge);
+            topActor->visited = true;
+            // loop through each edge of the top actor of the queue
+            for (int i = 0; i < topActor->connections.size(); i++) {
+                Edge* currEdge = topActor->connections[i];
+                int movieYear = currEdge->movie->year;
+                int weight = 1 + (CURRENT_YEAR - movieYear);
+                // top actor dist + the weight of this edge
+                int totalDistance = topActor->distance + weight;
+                // if edge from v to w is < w curr distance
+                if (totalDistance < currEdge->actor->distance) {
+                    currEdge->actor->previous = topEdge;
+                    currEdge->actor->distance = totalDistance;
+                    currEdge->distance = totalDistance;
+                    pq.push(currEdge);
+                }
+            }
+        }
+        // end of while
+    }
+    // return the weighted distance from start -> end
+    // assuming the variables were changed from previous algorithm
+    return make_pair(dummyEdge, resetVariables);
 }
 
 /* This method resets all the instance variables for each character node */
@@ -311,7 +365,7 @@ void ActorGraph::resetActorVariables() {
     for (itr = actorsMap.begin(); itr != actorsMap.end(); itr++) {
         itr->second->visited = false;
         itr->second->previous = nullptr;
-        itr->second->distance = -1;
+        itr->second->distance = numeric_limits<int>::max();
     }
 }
 
@@ -363,7 +417,7 @@ int commonEdges(Edge* currrEdge, Edge* otherrEdge) {
 }
 
 bool ActorGraph::actorsToVector(const char* in_filename,
-                                vector<string> &singleActors) {
+                                vector<string>& singleActors) {
     // Initialize the file stream
     ifstream infile(in_filename);
 
@@ -414,9 +468,8 @@ bool ActorGraph::actorsToVector(const char* in_filename,
     return true;
 }
 
-void ActorGraph::linkCollabs(ActorNode* startActor,
-                                      ofstream& outCollab,
-                                      ofstream& outUncollab) {
+void ActorGraph::linkCollabs(ActorNode* startActor, ofstream& outCollab,
+                             ofstream& outUncollab) {
     // vector that holds all the edges from the starting actor to a edge
     vector<Edge*> startActorNeighbors = startActor->connections;
     unordered_map<string, int> edgeMap;
@@ -470,26 +523,26 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
     while (pq.empty() == false) {
         // top edge of the priority queue
         ActorNode* topActor = pq.top();
-	// print the top four
-	if(y < 4){
-	   outCollab << topActor->name << "	";
-	   y = y + 1;
-	}
+        // print the top four
+        if (y < 4) {
+            outCollab << topActor->name << "	";
+            y = y + 1;
+        }
 
         for (int i = 0; i < topActor->connections.size(); i++) {
             ActorNode* currActor = topActor->connections[i]->actor;
-	    if(currActor->visited == false){
-            // calculate the priority
-            currActor->priority =
-                currActor->priority +
-                edgeMap.at(startActor->name + topActor->name);
-            // to avoid adding the same actor multiple times into the sort vector
-            if (currActor->added == false) {
-                currActor->added = true;
-                toSort.push_back(currActor);
+            if (currActor->visited == false) {
+                // calculate the priority
+                currActor->priority =
+                    currActor->priority +
+                    edgeMap.at(startActor->name + topActor->name);
+                // to avoid adding the same actor multiple times into the sort
+                // vector
+                if (currActor->added == false) {
+                    currActor->added = true;
+                    toSort.push_back(currActor);
+                }
             }
-	  }
-
         }
         pq.pop();
     }
@@ -499,31 +552,73 @@ void ActorGraph::linkCollabs(ActorNode* startActor,
     }
     // print the top four uncollaborated priority actors
     int TOP_FOUR = 4;
-    for(int i = 0; i < pqSecondLevel.size(); i++){
-	    if(i < TOP_FOUR){
-	     outUncollab << pqSecondLevel.top()->name << "	";
-	     pqSecondLevel.pop();
-	    }
-	    else{
-		break;
-	    }
+    for (int i = 0; i < pqSecondLevel.size(); i++) {
+        if (i < TOP_FOUR) {
+            outUncollab << pqSecondLevel.top()->name << "	";
+            pqSecondLevel.pop();
+        } else {
+            break;
+        }
     }
-    
-    // reset the actor variables 
-    for(int i = 0; i < toSort.size(); i++){
-	ActorNode* resetActor = toSort[i];
-	resetActor->priority =0;
-	resetActor->added = false;
-	resetActor->visited = false;
-    }
-    for(int i = 0; i < resetVariables.size();i++){
-	resetVariables[i]->actor->visited = false;
-	resetVariables[i]->actor->added = false;
-	resetVariables[i]->actor->priority = 0;
 
+    // reset the actor variables
+    for (int i = 0; i < toSort.size(); i++) {
+        ActorNode* resetActor = toSort[i];
+        resetActor->priority = 0;
+        resetActor->added = false;
+        resetActor->visited = false;
+    }
+    for (int i = 0; i < resetVariables.size(); i++) {
+        resetVariables[i]->actor->visited = false;
+        resetVariables[i]->actor->added = false;
+        resetVariables[i]->actor->priority = 0;
     }
     startActor->visited = false;
     startActor->priority = 0;
     startActor->added = false;
     // end method
+}
+
+ActorNode* ActorGraph::findSentinel(ActorNode* currActor) {
+    vector<ActorNode*> collectedNodes;
+    ActorNode* actor = currActor;
+    while (actor->parent != nullptr) {
+        collectedNodes.push_back(actor);
+        actor = actor->parent;
+    }
+    // compress all the collected nodes
+    pathCompression(collectedNodes, actor);
+    return actor;
+}
+
+void ActorGraph::pathCompression(vector<ActorNode*> path, ActorNode* sentinel) {
+    /* Make all the nodes in the path point to sentinel as parent */
+    for (int i = 0; i < path.size(); i++) {
+        ActorNode* toCompress = path.at(i);
+        toCompress->parent = sentinel;
+    }
+}
+
+bool ActorGraph::unionActors(ActorNode* actor1, ActorNode* actor2){
+
+    ActorNode* actor1Sentinel = findSentinel(actor1);
+    ActorNode* actor2Sentinel = findSentinel(actor2);
+    // only union them if not in the same tree to not create cycles
+    if (actor1Sentinel->name != actor2Sentinel->name) {
+        // if tree 1 size is <= tree 2 size
+        if (actor1Sentinel->size <= actor2Sentinel->size) {
+            // update the size
+            actor1Sentinel->size = actor1Sentinel->size + actor2Sentinel->size;
+            actor2Sentinel->parent = actor1Sentinel;
+            return true;
+        }
+        // if tree 2 size is < tree 1
+        else {
+            // update the size
+            actor2Sentinel->size = actor2Sentinel->size + actor1Sentinel->size;
+            actor1Sentinel->parent = actor2Sentinel;
+	    return true;
+        }
+    }
+    return false;
 }
