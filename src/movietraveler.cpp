@@ -69,5 +69,6 @@ int main(int argc, char* argv[]) {
 	
         myGraph.pq.pop();
     }
+    myGraph.resetActorVariables();
     return 0;
 }
