@@ -557,13 +557,15 @@ void ActorGraph::linkCollabs(ActorNode* startActor, ofstream& outCollab,
     }
     // print the top four uncollaborated priority actors
     int TOP_FOUR = 4;
-    for (int i = 0; i < pqSecondLevel.size(); i++) {
-        if (i < TOP_FOUR) {
+    int numPrinted = 0;
+    while (pqSecondLevel.empty() == false) {
+        if ( numPrinted < TOP_FOUR) {
             outUncollab << pqSecondLevel.top()->name << "	";
             pqSecondLevel.pop();
         } else {
             break;
         }
+	numPrinted++;
     }
 
     // reset the actor variables
