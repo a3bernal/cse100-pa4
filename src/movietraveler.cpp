@@ -35,6 +35,8 @@ int main(int argc, char* argv[]) {
     string leftP = "(";
     string rightP = ")";
     string midMovie = "#@";
+    string leftB = "[";
+    string rightB = "]";
     out << "(actor)<--[movie#@year]-->(actor)" << endl;
     while (myGraph.pq.empty() == false) {
         // break once a MST has been built
@@ -53,16 +55,16 @@ int main(int argc, char* argv[]) {
             numConnectedEdges++;
             totalWeight = totalWeight + endingEdge->weight;
             string path = leftP + startActor->name + rightP + leftA +
-                          currMovie->title + midMovie +
-                          to_string(currMovie->year) + rightA + leftP +
+                          leftB + currMovie->title + midMovie +
+                          to_string(currMovie->year)+ rightB + rightA + leftP +
                           endingEdgeActor->name + rightP;
             // print the path unioned
             out << path << endl;
         }
         myGraph.pq.pop();
     }
-    out << "NODE CONNECTED: " + to_string(maxEdges) << endl;
-    out << "EDGE CHOSEN: " + to_string(maxEdges-1) << endl;
+    out << "#NODE CONNECTED: " + to_string(maxEdges) << endl;
+    out << "#EDGE CHOSEN: " + to_string(maxEdges-1) << endl;
     out << "TOTAL EDGE WEIGHTS: " + to_string(totalWeight) << endl;
     out.close();
     while(myGraph.pq.empty() == false){
