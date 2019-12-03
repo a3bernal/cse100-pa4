@@ -368,6 +368,9 @@ void ActorGraph::resetActorVariables() {
         itr->second->visited = false;
         itr->second->previous = nullptr;
         itr->second->distance = numeric_limits<int>::max();
+        itr->second->parent = nullptr;
+        itr->second->size = 1;
+
     }
 }
 
