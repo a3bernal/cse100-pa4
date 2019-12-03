@@ -178,7 +178,9 @@ bool ActorGraph::buildEdges(const char* in_filename, bool use_weighted_edges) {
                 int edgeWeight = 1 + (currYear - currMovie->year);
                 connection->weight = edgeWeight;
                 currActor->connections.push_back(connection);
+		if(use_weighted_edges == true){
                 pq.push(make_pair(currActor, connection));
+		}
             }
         }
         // end of while loop
