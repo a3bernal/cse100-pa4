@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     // build the hashmaps
     myGraph.loadFromFile(argv[1], false);
     // build the edges
-    myGraph.buildEdges(argv[1], false);
+    myGraph.buildEdges(argv[1], true);
     // loop through the priority queue that holds all the edges
     int numConnectedEdges = 0;
     // vector to print the path
@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     string leftP = "(";
     string rightP = ")";
     string midMovie = "#@";
+    out << "(actor)<--[movie#@year]-->(actor)" << endl;
     while (myGraph.pq.empty() == false) {
         // break once a MST has been built
         if (numConnectedEdges >= maxEdges -1) {
@@ -60,7 +61,13 @@ int main(int argc, char* argv[]) {
         }
         myGraph.pq.pop();
     }
-    out << to_string(totalWeight) << endl;
+    out << "NODE CONNECTED: " + to_string(maxEdges) << endl;
+    out << "EDGE CHOSEN: " + to_string(maxEdges-1) << endl;
+    out << "TOTAL EDGE WEIGHTS: " + to_string(totalWeight) << endl;
     out.close();
+    while(myGraph.pq.empty() == false){
+	
+        myGraph.pq.pop();
+    }
     return 0;
 }
