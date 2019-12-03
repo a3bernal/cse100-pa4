@@ -31,11 +31,33 @@ int main(int argc, char* argv[]) {
     out.open(argv[4]);
     // print the header
     out << "(actor)--[movie#@year]-->(actor)--..." << endl;
+    // either runs the weighted or unweighted algorith
+    bool weighted = false;
+    if (*argv[2] == 'w') {
+        weighted = true;
+    }
+
     for (int i = 0; i < vectorPairs.size(); i++) {
         string startAct = vectorPairs[i].first;
         ActorNode* startActor = myGraph.actorsMap.at(startAct);
         string endActor = vectorPairs[i].second;
-        myGraph.BFSActors(startActor, endActor, out);
+
+        // unweighted algorithm
+        if (weighted == false) {
+            myGraph.BFSActors(startActor, endActor, out);
+        }
+
+        // weighted algorithm
+        else {
+            // returns a pair total distance , vector to reset variables
+            pair<Edge*, vector<Edge*>> PAIR =
+                myGraph.shortestPathWeighted(startActor, endActor);
+            Edge* endingActor = PAIR.first;
+            vector<Edge*> resetEdges = PAIR.second;
+            myGraph.printPath(startActor, endingActor, out);
+            // reset the variables
+            myGraph.resetActorVariables();
+        }
     }
     out.close();
     return 0;

@@ -32,19 +32,18 @@ int main(int argc, char* argv[]) {
     ofstream outCollab;
     outCollab.open(argv[3]);
 
-    // file to write Uncollab to 
+    // file to write Uncollab to
     ofstream outUncollab;
     outUncollab.open(argv[4]);
     // print the header
     outCollab << "Actor1,Actor2,Actor3,Actor4" << endl;
     outUncollab << "Actor1,Actor2,Actor3,Actor4" << endl;
     for (int i = 0; i < actorsList.size(); i++) {
-
         string startAct = actorsList[i];
         ActorNode* startActor = myGraph.actorsMap.at(startAct);
         myGraph.linkCollabs(startActor, outCollab, outUncollab);
-	outCollab << endl;
-	outUncollab << endl;
+        outCollab << endl;
+        outUncollab << endl;
     }
     outCollab.close();
     outUncollab.close();
