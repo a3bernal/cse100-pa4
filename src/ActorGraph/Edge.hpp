@@ -16,8 +16,7 @@
 #include "MovieNode.hpp"
 using namespace std;
 
-// class ActorNode;
-
+/* This class represents the Edges between two actor vertex in the graph */
 class Edge {
   public:
     // the actor that that connects the edge with calling actor
@@ -38,6 +37,7 @@ class Edge {
         weight = 0;
     }
 };
+/* Used for priority queue */
 struct EdgePtrComp {
     /* Used for the priority queue to prioritize*/
     bool operator()(Edge* lhs, Edge* rhs) const {

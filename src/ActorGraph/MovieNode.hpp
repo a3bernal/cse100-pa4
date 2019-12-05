@@ -8,8 +8,8 @@
 #define MOVIENODE_HPP
 #include <iostream>
 #include <string>
-
 using namespace std;
+// reference to ActorNdode class
 class ActorNode;
 /* This class initialises the movie node with its current arguments*/
 class MovieNode {

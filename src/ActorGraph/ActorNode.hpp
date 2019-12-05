@@ -14,8 +14,9 @@
 #include "ActorGraph.hpp"
 #include "Edge.hpp"
 #include "MovieNode.hpp"
-
 using namespace std;
+
+/* ActorNode class that represents a vertex in the Graph */
 class ActorNode {
   public:
     // name of the actor

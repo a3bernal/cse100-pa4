@@ -1,11 +1,11 @@
 /*
  * ActorGraph.cpp
- * Author: <YOUR NAME HERE>
- * Date:   <DATE HERE>
+ * Author: Andres Berna;
  *
- * This file is meant to exist as a container for starter code that you can use
- * to read the input file format defined in imdb_2019.tsv. Feel free to modify
- * any/all aspects as you wish.
+ * File Header : This file is meant to exist as a container for starter code
+ * that you can use to read the input file format defined in imdb_2019.tsv.
+ * Feel free to modify any/all aspects as you wish. It contains all the methods
+ * used for the executables
  */
 #include "ActorGraph.hpp"
 #include <fstream>
@@ -178,9 +178,9 @@ bool ActorGraph::buildEdges(const char* in_filename, bool use_weighted_edges) {
                 int edgeWeight = 1 + (currYear - currMovie->year);
                 connection->weight = edgeWeight;
                 currActor->connections.push_back(connection);
-		if(use_weighted_edges == true){
-                pq.push(make_pair(currActor, connection));
-		}
+                if (use_weighted_edges == true) {
+                    pq.push(make_pair(currActor, connection));
+                }
             }
         }
         // end of while loop
@@ -195,7 +195,7 @@ bool ActorGraph::buildEdges(const char* in_filename, bool use_weighted_edges) {
 }
 
 /* This method reads a file in the format actor<tab>actor2 and adds them into
- * a vector as a pair
+ * a vector as a pair until it finishes reading all the pairs
  */
 bool ActorGraph::pairsToVector(const char* in_filename,
                                vector<pair<string, string>>& actorPairs) {
@@ -252,6 +252,10 @@ bool ActorGraph::pairsToVector(const char* in_filename,
     return true;
 }
 
+/* This method finds the shortest path from the starting actor to the
+ * ending actor on a unweighted edge graph and print the path from the
+ * start to the end to a file
+ */
 int ActorGraph::BFSActors(ActorNode* startingActor, string endingActor,
                           ofstream& out) {
     // to calculate the end node is from start vertex
@@ -311,7 +315,6 @@ int ActorGraph::BFSActors(ActorNode* startingActor, string endingActor,
 /* This method find the shortest weighted path from a starting actor to
  * another actor based on the input and returns the total weighted path
  */
-
 pair<Edge*, vector<Edge*>> ActorGraph::shortestPathWeighted(
     ActorNode* startActor, string endActor) {
     const int CURRENT_YEAR = 2019;
@@ -354,7 +357,6 @@ pair<Edge*, vector<Edge*>> ActorGraph::shortestPathWeighted(
                 }
             }
         }
-        // end of while
     }
     // return the weighted distance from start -> end
     // assuming the variables were changed from previous algorithm
@@ -370,7 +372,6 @@ void ActorGraph::resetActorVariables() {
         itr->second->distance = numeric_limits<int>::max();
         itr->second->parent = nullptr;
         itr->second->size = 1;
-
     }
 }
 
@@ -407,7 +408,7 @@ void ActorGraph::printPath(ActorNode* startActor, Edge* end, ofstream& out) {
     out << fullPath << endl;
 }
 
-// This edge returns the number of movies two actors worked together in
+/* This method returns the number of movies two actors worked together in */
 int commonEdges(Edge* currrEdge, Edge* otherrEdge) {
     ActorNode* currActor = currrEdge->actor;
     vector<Edge*> currActorEdges = currActor->connections;
@@ -421,6 +422,7 @@ int commonEdges(Edge* currrEdge, Edge* otherrEdge) {
     return together;
 }
 
+/*This method reads in a file puts the actors into a vector until the EOF */
 bool ActorGraph::actorsToVector(const char* in_filename,
                                 vector<string>& singleActors) {
     // Initialize the file stream
@@ -472,7 +474,11 @@ bool ActorGraph::actorsToVector(const char* in_filename,
 
     return true;
 }
-
+/* This method predicts the future collaborations between starting actor
+ * and another actor, the first prediction with another one is with someone
+ * the starting actor has worked with and the other prediction is with someone
+ * the start actor has not collaborated in a movie with
+ */
 void ActorGraph::linkCollabs(ActorNode* startActor, ofstream& outCollab,
                              ofstream& outUncollab) {
     // vector that holds all the edges from the starting actor to a edge
@@ -559,13 +565,13 @@ void ActorGraph::linkCollabs(ActorNode* startActor, ofstream& outCollab,
     int TOP_FOUR = 4;
     int numPrinted = 0;
     while (pqSecondLevel.empty() == false) {
-        if ( numPrinted < TOP_FOUR) {
+        if (numPrinted < TOP_FOUR) {
             outUncollab << pqSecondLevel.top()->name << "	";
             pqSecondLevel.pop();
         } else {
             break;
         }
-	numPrinted++;
+        numPrinted++;
     }
 
     // reset the actor variables
@@ -585,7 +591,9 @@ void ActorGraph::linkCollabs(ActorNode* startActor, ofstream& outCollab,
     startActor->added = false;
     // end method
 }
-
+/* This method finds the root of the Actor Node passed in and retuns the root
+ * which is defined as the sentinel
+ */
 ActorNode* ActorGraph::findSentinel(ActorNode* currActor) {
     vector<ActorNode*> collectedNodes;
     ActorNode* actor = currActor;
@@ -597,7 +605,9 @@ ActorNode* ActorGraph::findSentinel(ActorNode* currActor) {
     pathCompression(collectedNodes, actor);
     return actor;
 }
-
+/* This method compresses the graph by pointing the curr vertex to the sentinel
+ * node for a efficent findSentinel time
+ */
 void ActorGraph::pathCompression(vector<ActorNode*> path, ActorNode* sentinel) {
     /* Make all the nodes in the path point to sentinel as parent */
     for (int i = 0; i < path.size(); i++) {
@@ -605,9 +615,10 @@ void ActorGraph::pathCompression(vector<ActorNode*> path, ActorNode* sentinel) {
         toCompress->parent = sentinel;
     }
 }
-
-bool ActorGraph::unionActors(ActorNode* actor1, ActorNode* actor2){
-
+/* This method connects two edges by connection two Actors vertex together
+ * and modifies their size. Returns true if it was succesful
+ */
+bool ActorGraph::unionActors(ActorNode* actor1, ActorNode* actor2) {
     ActorNode* actor1Sentinel = findSentinel(actor1);
     ActorNode* actor2Sentinel = findSentinel(actor2);
     // only union them if not in the same tree to not create cycles
@@ -624,7 +635,7 @@ bool ActorGraph::unionActors(ActorNode* actor1, ActorNode* actor2){
             // update the size
             actor2Sentinel->size = actor2Sentinel->size + actor1Sentinel->size;
             actor1Sentinel->parent = actor2Sentinel;
-	    return true;
+            return true;
         }
     }
     return false;
