@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
+#include <queue>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -8,7 +9,6 @@
 #include "ActorNode.hpp"
 #include "Edge.hpp"
 #include "MovieNode.hpp"
-#include <queue>
 
 class ActorGraph;
 using namespace std;
@@ -69,67 +69,67 @@ class SimpleGraphFixture : public ::testing::Test {
         // create the graph edges
         // a ->b
         Edge* ab = new Edge(b, movie1);
-	ab->weight = 5;
+        ab->weight = 5;
         // a->d
         Edge* ad = new Edge(d, movie4);
-	ad->weight = 3;
+        ad->weight = 3;
         // b->a
         Edge* ba = new Edge(a, movie1);
-	ba->weight = 5;
+        ba->weight = 5;
         // Edge b->c
         Edge* bc = new Edge(c, movie2);
-	bc->weight = 4;
+        bc->weight = 4;
         // Edge b->d
         Edge* bd = new Edge(d, movie8);
-	bd->weight = 10;
+        bd->weight = 10;
         // Edge b->e
         Edge* be = new Edge(e, movie7);
-	be->weight = 7;
+        be->weight = 7;
         // edge c->b
         Edge* cb = new Edge(b, movie2);
-	cb->weight = 4;
-	// edge c->e
+        cb->weight = 4;
+        // edge c->e
         Edge* ce = new Edge(e, movie6);
-	ce->weight = 9;
+        ce->weight = 9;
         // edge d->a
         Edge* da = new Edge(a, movie4);
-	da->weight = 3;
+        da->weight = 3;
         // edge d->b
         Edge* db = new Edge(b, movie8);
-	db->weight = 10;
+        db->weight = 10;
         // edge d->e
         Edge* de = new Edge(e, movie5);
-	de->weight = 2;
+        de->weight = 2;
         // edge e->b
         Edge* eb = new Edge(b, movie7);
-	eb->weight = 7;
+        eb->weight = 7;
         // edge e->d
         Edge* ed = new Edge(d, movie5);
-	ed->weight = 2;
+        ed->weight = 2;
         // edge e->c
-	Edge* ec = new Edge(c, movie6);
-	ec->weight = 9;
+        Edge* ec = new Edge(c, movie6);
+        ec->weight = 9;
 
-	myGraph.pq.push(make_pair(d, de));
-	myGraph.pq.push(make_pair(e, ed));
+        myGraph.pq.push(make_pair(d, de));
+        myGraph.pq.push(make_pair(e, ed));
 
-	myGraph.pq.push(make_pair(a, ad));
-	myGraph.pq.push(make_pair(d, da));
+        myGraph.pq.push(make_pair(a, ad));
+        myGraph.pq.push(make_pair(d, da));
 
-	myGraph.pq.push(make_pair(b, bc));
-	myGraph.pq.push(make_pair(c, cb));
+        myGraph.pq.push(make_pair(b, bc));
+        myGraph.pq.push(make_pair(c, cb));
 
-	myGraph.pq.push(make_pair(a, ab));
-	myGraph.pq.push(make_pair(b, ba));
+        myGraph.pq.push(make_pair(a, ab));
+        myGraph.pq.push(make_pair(b, ba));
 
-	myGraph.pq.push(make_pair(b, be));
-	myGraph.pq.push(make_pair(e, eb));
+        myGraph.pq.push(make_pair(b, be));
+        myGraph.pq.push(make_pair(e, eb));
 
-	myGraph.pq.push(make_pair(c, ce));
-	myGraph.pq.push(make_pair(e, ec));
+        myGraph.pq.push(make_pair(c, ce));
+        myGraph.pq.push(make_pair(e, ec));
 
-	myGraph.pq.push(make_pair(b, bd));
-	myGraph.pq.push(make_pair(d, db));
+        myGraph.pq.push(make_pair(b, bd));
+        myGraph.pq.push(make_pair(d, db));
 
         // connect their edges
         a->connections.push_back(ab);
@@ -153,52 +153,26 @@ class SimpleGraphFixture : public ::testing::Test {
     }
 };
 
-
 TEST_F(SimpleGraphFixture, testMovieTraveler) {
+    ActorNode* start = myGraph.pq.top().first;
+    ASSERT_EQ(start->name, "d");
+    ActorNode* end = myGraph.pq.top().second->actor;
+    bool add = myGraph.unionActors(start, end);
+    ASSERT_EQ(add, true);
+    myGraph.pq.pop();
 
+    ActorNode* start1 = myGraph.pq.top().first;
+    ASSERT_EQ(start1->name, "e");
+    ActorNode* end1 = myGraph.pq.top().second->actor;
+    ASSERT_EQ(end1->name, "d");
+    bool add1 = myGraph.unionActors(start1, end1);
+    ASSERT_EQ(add1, false);
+    myGraph.pq.pop();
 
-	ActorNode* start = myGraph.pq.top().first;
-	ASSERT_EQ(start->name, "d");
-	ActorNode* end = myGraph.pq.top().second->actor;
-	bool add = myGraph.unionActors(start, end);
-	ASSERT_EQ(add, true);
-	myGraph.pq.pop();
-
-
-	ActorNode* start1 = myGraph.pq.top().first;
-	ASSERT_EQ(start1->name, "e");
-	ActorNode* end1 = myGraph.pq.top().second->actor;
-	ASSERT_EQ(end1->name, "d");
-	bool add1 = myGraph.unionActors(start1,end1);
-	ASSERT_EQ(add1, false);
-	myGraph.pq.pop();
-
-
-	ActorNode* start2 = myGraph.pq.top().first;
-	ASSERT_EQ(start2->name, "a");
-	ActorNode* end2 = myGraph.pq.top().second->actor;
-	ASSERT_EQ(end2->name, "d");
-	bool add2 = myGraph.unionActors(start2,end2);
-	ASSERT_EQ(add2, true);
-
+    ActorNode* start2 = myGraph.pq.top().first;
+    ASSERT_EQ(start2->name, "a");
+    ActorNode* end2 = myGraph.pq.top().second->actor;
+    ASSERT_EQ(end2->name, "d");
+    bool add2 = myGraph.unionActors(start2, end2);
+    ASSERT_EQ(add2, true);
 }
-
-/*
-TEST_F(SimpleGraphFixture, testPredictor) {
-
-ActorNode* start = myGraph.actorsMap.at("b");
-vector<Edge*> check = myGraph.actorCommonNeighbors(start);
-// d , a , e, c
-ASSERT_EQ(check[0]->actor->name, "d");
-ASSERT_EQ(check[0]->priority, 3);
-
-ASSERT_EQ(check[1]->actor->name, "a");
-ASSERT_EQ(check[1]->priority, 1);
-
-ASSERT_EQ(check[2]->actor->name, "e");
-ASSERT_EQ(check[2]->priority, 1);
-
-ASSERT_EQ(check[3]->actor->name, "c");
-ASSERT_EQ(check[3]->priority, 0);
-
-}*/
