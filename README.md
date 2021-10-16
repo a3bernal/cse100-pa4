@@ -1,28 +1,3 @@
-# C++ Starter Project for CSE100.
-This is a C++ starter project for CSE100. There are two ways of working on the PAs for this class: 
-1. Use the ieng6 lab machines. 
-2. Use a devcontainer on your own computer.
-
-ℹ️ You can find a cheatsheet of important commands in [COMMANDS_CHEATSHEET.md](COMMANDS_CHEATSHEET.md)
-
-## Getting Started with ieng6
-If you don’t want to setup a devcontainer on your machine, you have the option to remotely connect to the lab machines (a.k.a. ieng6) using ssh or physically work in the lab. No additional setup is necessary for you to do, as the lab computers are already equipped with all the tools that you need to work on your PA. The only major difference is, however, that you will not be able to use VSCode to write your code - you will have to use VIM (like you did in CSE 30) to write your code and use commands on the terminal to compile and run your program.  Here’s a step by step guide for you to get started:
-
-**1. Connect to ieng6** (skip this step if you are physically working on a lab machine)
-If you’re on a Mac, you can open a terminal and use the command below and enter your password when prompted to connect to ieng6:
-
-`ssh <your_cse_100_account>@ieng6.ucsd.edu`
-
-For windows users, we encourage you to use the super convenient tool MobaXterm.
-
-**2. Get the starter code**
-This step is given to you on the write-up, but in summary, you have to clone the starter code repository by running the command below and enter your github username and password when prompted:
-
-`git clone <the-url-provided-in-the-writeup>`
-
-
-Everything from this point on is the same as what you would do if you were working in a devcontainer, but here’s a concise guide to compiling and running your code. 
- 
 **3. Compiling your code**
 Go into the root directory of your project:
 
